@@ -393,3 +393,13 @@ class GoBoard(object):
             if counter == 5 and prev != EMPTY:
                 return prev
         return EMPTY
+    
+
+    def neighbors_of_color(self, point: GO_POINT, color: GO_COLOR) -> List:
+        """ List of neighbors of point of given color """
+        nbc: List[GO_POINT] = []
+        neighbors = self._neighbors(point) + self._diag_neighbors(point)
+        for nb in neighbors:
+            if self.get_color(nb) == color:
+                nbc.append(nb)
+        return nbc
