@@ -407,7 +407,6 @@ def point_to_coord(point: GO_POINT, boardsize: int) -> Tuple[int, int]:
         NS = boardsize + 1
         return divmod(point, NS)
 
-
 def format_point(move: Tuple[int, int]) -> str:
     """
     Return move coordinates as a string such as 'A1', or 'PASS'.
