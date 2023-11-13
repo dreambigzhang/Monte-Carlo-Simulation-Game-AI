@@ -13,6 +13,7 @@ import numpy as np
 import re
 from sys import stdin, stdout, stderr
 from typing import Any, Callable, Dict, List, Tuple
+from policy_player import policy_moves
 
 from board_base import (
     BLACK,
@@ -43,6 +44,7 @@ class GtpConnection:
         """
         self._debug_mode: bool = debug_mode
         self.go_engine = go_engine
+        self.policy = 'random'
         self.board: GoBoard = board
         self.commands: Dict[str, Callable[[List[str]], None]] = {
             "protocol_version": self.protocol_version_cmd,
@@ -67,7 +69,9 @@ class GtpConnection:
             "gogui-rules_board": self.gogui_rules_board_cmd,
             "gogui-analyze_commands": self.gogui_analyze_cmd,
             "timelimit": self.timelimit_cmd,
-            "solve": self.solve_cmd
+            "solve": self.solve_cmd,
+            "policy": self.set_policy_cmd,
+            "policy_moves": self.policy_moves_cmd
         }
 
         # argmap is used for argument checking
@@ -418,6 +422,22 @@ class GtpConnection:
         ''' Runs simulation on the given move, returns the score '''
         pass
 
+
+    """
+    ==========================================================================
+    Assignment 3 - game-specific commands end here
+    ==========================================================================
+    """
+
+    def set_policy_cmd(self, args: List[str]) -> None:
+        """ Set the policy to be used by the engine """
+        self.policy = args[0]
+        self.respond()
+
+    def policy_moves_cmd(self, args: List[str]):
+        policy, moves = policy_moves(self.board, self.board.current_player, self.policy, self.board.size)
+        self.respond(policy + ' ' + ' '.join(moves))
+
     """
     ==========================================================================
     Assignment 1 - game-specific commands end here
@@ -482,3 +502,4 @@ def color_to_int(c: str) -> int:
     """convert character to the appropriate integer code"""
     color_to_int = {"b": BLACK, "w": WHITE, "e": EMPTY, "BORDER": BORDER}
     return color_to_int[c]
+
