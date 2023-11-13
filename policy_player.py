@@ -39,59 +39,106 @@ def policy_moves(board: GoBoard, color: GO_COLOR, policy, board_size) -> GO_POIN
 
 def scanWin(board: GoBoard, color, board_size):
     # scan for win moves
-    winMoves = []
+    winMoves = set()
     for point in board.get_empty_points():
         for noc in board.neighbors_of_color(point, color):
-            isWinMove = True
             direction = noc - point
+            pos_direction_count = 1
             try:
                 for i in range(2, 5):
-                    if board.get_color(point+direction*i) != color:
+                    if board.get_color(point+direction*i) == color:
+                        pos_direction_count += 1
+                    else:
                         raise Exception
             except:
+                pass
+            neg_direction_count = 1
+            try:
+                for i in range(1, 5):
+                    if board.get_color(point-direction*i) == color:
+
+                        neg_direction_count += 1
+                    else:
+                        raise Exception
+            except:
+                pass
+            if pos_direction_count + neg_direction_count >= 5:
+                isWinMove = True
+            else:
                 isWinMove = False
             if isWinMove:
-                winMoves.append(format_point(point_to_coord(point,board_size)).lower() )
+                winMoves.add(format_point(point_to_coord(point,board_size)).lower())
     return sorted(winMoves)
 
 def scanBlockWin(board: GoBoard, color, board_size):
     # scan for block win moves
-    blockWinMoves = []
+    blockWinMoves = set()
     for point in board.get_empty_points():
         for noc in board.neighbors_of_color(point, opponent(color)):
-            isBlockWinMove = True
             direction = noc - point
+            pos_direction_count = 1
             try:
                 for i in range(2, 5):
-                    if board.get_color(point+direction*i) != opponent(color):
+                    if board.get_color(point+direction*i) == opponent(color):
+                        pos_direction_count += 1
+                    else:
                         raise Exception
             except:
+                pass
+            neg_direction_count = 1
+            try:
+                for i in range(1, 5):
+                    if board.get_color(point-direction*i) == opponent(color):
+                        neg_direction_count += 1
+                    else:
+                        raise Exception
+            except:
+                pass
+            if pos_direction_count + neg_direction_count >= 5:
+                isBlockWinMove = True
+            else:    
                 isBlockWinMove = False
+
             if isBlockWinMove:
-                blockWinMoves.append(format_point(point_to_coord(point,board_size)).lower() )
+                blockWinMoves.add(format_point(point_to_coord(point,board_size)).lower() )
     return sorted(blockWinMoves)
 
 def scanOpenFour(board: GoBoard, color, board_size):
     # scan for open four moves
-    openFourMoves = []
+    openFourMoves = set()
     for point in board.get_empty_points():
         for noc in board.neighbors_of_color(point, color):
-            isOpenFourMove = True
             direction = noc - point
+            pos_direction_count = 1
             try:
                 for i in range(2, 5):
-                    if board.get_color(point+direction*i) != color:
+                    if board.get_color(point+direction*i) == color:
+                        pos_direction_count += 1
+                    else:
                         raise Exception
-                if board.get_color(point+direction*5) != EMPTY:
-                    raise Exception
             except:
+                pass
+            neg_direction_count = 1
+            try:
+                for i in range(1, 5):
+                    if board.get_color(point-direction*i) == color:
+
+                        neg_direction_count += 1
+                    else:
+                        raise Exception
+            except:
+                pass
+            if pos_direction_count + neg_direction_count == 4:
+                isOpenFourMove = True
+            else:
                 isOpenFourMove = False
+
             if isOpenFourMove:
-                openFourMoves.append(format_point(point_to_coord(point,board_size)).lower() )
+                openFourMoves.add(format_point(point_to_coord(point,board_size)).lower() )
     return sorted(openFourMoves)
 
 def scanCapture(board: GoBoard, color, board_size):
-    captureMoves = []
+    captureMoves = set()
     for point in board.get_empty_points():
         for noc in board.neighbors_of_color(point, opponent(color)):
             isCaptureMove = True
@@ -103,7 +150,7 @@ def scanCapture(board: GoBoard, color, board_size):
                 isCaptureMove = False
 
             if isCaptureMove:
-                captureMoves.append(format_point(point_to_coord(point,board_size)).lower() )
+                captureMoves.add(format_point(point_to_coord(point,board_size)).lower() )
     return sorted(captureMoves)
 
 def scanRandom(board: GoBoard, color, board_size):
