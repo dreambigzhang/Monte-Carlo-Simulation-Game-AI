@@ -11,7 +11,9 @@ from board_base import DEFAULT_SIZE, GO_POINT, GO_COLOR
 from board import GoBoard
 from board_util import GoBoardUtil
 from engine import GoEngine
-
+from typing import Any, Callable, Dict, List, Tuple
+import numpy as np
+from gtp_connection import point_to_coord, format_point
 
 class Go0(GoEngine):
     def __init__(self) -> None:
@@ -32,7 +34,6 @@ class Go0(GoEngine):
         Change if deemed necessary
         """
         pass
-
 
 def run() -> None:
     """
