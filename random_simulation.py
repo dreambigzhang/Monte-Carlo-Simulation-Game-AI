@@ -22,9 +22,6 @@ class SimulationPlayer(object):
         self.board = GoBoard()
         self.toPlay = BLACK
 
-    def name(self):
-        return "Simulation Player ({0} sim.)".format(self.numSimulations)
-
     def genmove(self, state):
         '''1. Generate a list of all legal moves
            2. Simulate 10 games for each legal move
