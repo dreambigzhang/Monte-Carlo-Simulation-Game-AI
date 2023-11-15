@@ -13,7 +13,8 @@ import numpy as np
 import re
 from sys import stdin, stdout, stderr
 from typing import Any, Callable, Dict, List, Tuple
-from policy_player import policy_moves
+from policy_player import PolicyPlayer
+from flat_monte_carlo import SimulationPlayer
 
 from board_base import (
     BLACK,
@@ -360,30 +361,6 @@ class GtpConnection:
     Assignment 2 - game-specific commands you have to implement or modify
     ==========================================================================
     """
-
-    def genmove_cmd(self, args: List[str]) -> None:
-        """ 
-        Modify this function for Assignment 2.
-        """
-        board_color = args[0].lower()
-        color = color_to_int(board_color)
-        result1 = self.board.detect_five_in_a_row()
-        result2 = EMPTY
-        if self.board.get_captures(opponent(color)) >= 10:
-            result2 = opponent(color)
-        if result1 == opponent(color) or result2 == opponent(color):
-            self.respond("resign")
-            return
-        legal_moves = self.board.get_empty_points()
-        if legal_moves.size == 0:
-            self.respond("pass")
-            return
-        rng = np.random.default_rng()
-        choice = rng.choice(len(legal_moves))
-        move = legal_moves[choice]
-        move_coord = point_to_coord(move, self.board.size)
-        move_as_string = format_point(move_coord)
-        self.play_cmd([board_color, move_as_string, 'print_move'])
     
     def timelimit_cmd(self, args: List[str]) -> None:
         """ Implement this function for Assignment 2 """
@@ -405,9 +382,29 @@ class GtpConnection:
         self.respond()
 
     def policy_moves_cmd(self, args: List[str]):
-        policy, moves = policy_moves(self.board, self.board.current_player, self.policy, self.board.size)
+        policy, moves = PolicyPlayer().get_policy_moves(self.board, self.board.current_player, self.policy)
         self.respond(policy + ' ' + ' '.join(moves))
 
+
+
+    def genmove_cmd(self, args: List[str]) -> None:
+        """ 
+        Modify this function for Assignment 2.
+        """
+        board_color = args[0].lower()
+        color = color_to_int(board_color)
+        result1 = self.board.detect_five_in_a_row()
+        result2 = EMPTY
+        if self.board.get_captures(opponent(color)) >= 10:
+            result2 = opponent(color)
+        if result1 == opponent(color) or result2 == opponent(color):
+            self.respond("resign")
+            return
+        move = SimulationPlayer().genmove(self.board, color, self.policy)
+        move_coord = point_to_coord(move, self.board.size)
+        move_as_string = format_point(move_coord).lower()
+        #self.play_cmd([board_color, move_as_string, 'print_move'])
+        self.respond(move_as_string)
     """
     ==========================================================================
     Assignment 1 - game-specific commands end here
