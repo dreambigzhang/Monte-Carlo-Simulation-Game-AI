@@ -20,22 +20,26 @@ This command prints the set of moves considered by the simulation policy for the
 = MoveType movelist 
 Where MoveType is one of: {Win, BlockWin, OpenFour, Capture, Random}. Movelist is an alphabetically sorted list of moves (same sorting order as implemented in gogui-rules_legal_moves).
 """
-def policy_moves(board: GoBoard, color: GO_COLOR, policy, board_size) -> GO_POINT:
-    if policy == 'random':
+class PolicyPlayer(object):
+    def __init__(self):
+        pass
+    def get_policy_moves(self, board: GoBoard, color: GO_COLOR, policy):
+        board_size = board.size
+        if policy == 'random':
+            return 'Random', scanRandom(board, color, board_size)
+        winMoves = scanWin(board, color, board_size)
+        if len(winMoves) > 0:
+            return 'Win', winMoves
+        blockWinMoves = scanBlockWin(board, color, board_size)
+        if len(blockWinMoves) > 0:
+            return 'BlockWin',blockWinMoves
+        openFourMoves = scanOpenFour(board, color, board_size)
+        if len(openFourMoves) > 0:
+            return 'OpenFour', openFourMoves
+        captureMoves = scanCapture(board, color, board_size)
+        if len(captureMoves) > 0:
+            return 'Capture', captureMoves
         return 'Random', scanRandom(board, color, board_size)
-    winMoves = scanWin(board, color, board_size)
-    if len(winMoves) > 0:
-        return 'Win', winMoves
-    blockWinMoves = scanBlockWin(board, color, board_size)
-    if len(blockWinMoves) > 0:
-        return 'BlockWin',blockWinMoves
-    openFourMoves = scanOpenFour(board, color, board_size)
-    if len(openFourMoves) > 0:
-        return 'OpenFour', openFourMoves
-    captureMoves = scanCapture(board, color, board_size)
-    if len(captureMoves) > 0:
-        return 'Capture', captureMoves
-    return 'Random', scanRandom(board, color, board_size)
 
 def scanWin(board: GoBoard, color, board_size):
     # scan for win moves
