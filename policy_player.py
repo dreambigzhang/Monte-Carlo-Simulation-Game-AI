@@ -148,7 +148,7 @@ def scanCapture(board: GoBoard, color, board_size):
             isCaptureMove = True
             direction = noc - point
             try:
-                if not (board.get_color(point+direction*2) == opponent(color) and board.get_color(point+direction*3) == opponent(color) and board.get_color(point+direction*3) == color):
+                if not (board.get_color(point+direction*2) == opponent(color) and board.get_color(point+direction*3) == color):
                     raise Exception
             except:
                 isCaptureMove = False
