@@ -403,3 +403,23 @@ class GoBoard(object):
             if self.get_color(nb) == color:
                 nbc.append(nb)
         return nbc
+    
+
+    def isGameOver(self):
+        return self.end_of_game() or self.detect_five_in_a_row() != EMPTY or self.boardIsFull() or self.black_captures >= 10 or self.white_captures >= 10
+    
+    def evalEndState(self):
+        #print(color)
+        if self.detect_five_in_a_row() == BLACK:
+            return BLACK
+        elif self.detect_five_in_a_row() == WHITE:
+            return WHITE
+        elif self.black_captures >=10:
+                return BLACK
+        elif self.white_captures >=10:
+                return WHITE
+        return EMPTY
+    
+
+    def boardIsFull(self):
+            return not EMPTY in self.board
