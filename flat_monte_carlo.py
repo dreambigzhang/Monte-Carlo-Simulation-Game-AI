@@ -3,6 +3,7 @@ from board_util import GoBoardUtil
 from typing import List, Tuple
 from engine import GoEngine
 import random
+from policy_player import PolicyPlayer
 from board_base import (
     BLACK,
     WHITE,
@@ -18,9 +19,8 @@ from board_base import (
 class SimulationPlayer(object):
     def __init__(self):
         self.numSimulations = 10
-        self.toPlay = BLACK
 
-    def genmove(self, board: GoBoard, player):
+    def genmove(self, board: GoBoard, player, policy):
         '''1. Generate a list of all legal moves
            2. Simulate 10 games for each legal move
            3. Pick highest winrate
@@ -29,7 +29,11 @@ class SimulationPlayer(object):
         '''
         # assert not state.endOfGame()
         # Get all legal moves and put it into a list 
-        legal_moves = board.get_empty_points()
+        if policy == 'random':
+            legal_moves = board.get_empty_points()
+        else:
+            _, policy_moves =  PolicyPlayer().get_policy_moves(board, player, policy)
+            legal_moves = [coord_to_point(move_to_coord(move, board.size)[0], move_to_coord(move, board.size)[1], board.size) for move in policy_moves]
         if len(legal_moves) == 0:
             print('No legal moves left. Yield')
             return 'Yield'
@@ -38,7 +42,7 @@ class SimulationPlayer(object):
         for i in range(len(legal_moves)):
             move = legal_moves[i]
             score[i] = self.simulate(board, move, player)
-
+        
         # Get the best score
         bestIndex = score.index(max(score))
         best = legal_moves[bestIndex]
@@ -47,9 +51,10 @@ class SimulationPlayer(object):
     def simulate(self, board: GoBoard, move, player):
         stats = [0] * 3
         board_copy = board.copy()
-        board.play_move(move)
+        
+        board.play_move(move, board.current_player)
         for _ in range(self.numSimulations):
-            winner, _ = self.simulate1(board, player)
+            winner = self.simulate1(board)
             stats[winner] += 1
         board = board_copy
         assert sum(stats) == self.numSimulations
@@ -58,61 +63,60 @@ class SimulationPlayer(object):
         return eval
     
     # simulate one game from the current state until the end
-    def simulate1(self, board):
-        i = 0
-        if not board.endOfGame():
-            allMoves = board.legalMoves()
-            random.shuffle(allMoves)
-            while not board.endOfGame():
-                board.play(allMoves[i])
-                i += 1
-        return board.winner(), i
+    def simulate1(self, board: GoBoard):
+        while not board.isGameOver():
+            board.play_move(random.choice(board.get_empty_points()), board.current_player)
+        return board.evalEndState()
 
-    def resetToMoveNumber(self, moveNr):
-        numUndos = self.moveNumber() - moveNr
-        assert numUndos >= 0
-        for _ in range(numUndos):
-            self.undoMove()
-        assert self.moveNumber() == moveNr
 
-    def switchToPlay(self):
-        self.toPlay = opponent(self.toPlay)
-
-    def play(self, location):
-        #assert not self.endOfGame()
-        assert self.board[location] == EMPTY
-        self.board[location] = self.toPlay
-        self.moves.append(location)
-        self.switchToPlay()
-
-    def undoMove(self):
-        location = self.moves.pop()
-        self.board[location] = EMPTY
-        self.switchToPlay()
-
-    def moveNumber(self):
-        return len(self.moves)
     
 #==============================================================================================
 # Copied here for easy use
 #==============================================================================================
 
-    def point_to_coord(point: GO_POINT, boardsize: int) -> Tuple[int, int]:
-        if point == PASS:
-            return (PASS, PASS)
-        else:
-            NS = boardsize + 1
-            return divmod(point, NS)
+def point_to_coord(point: GO_POINT, boardsize: int) -> Tuple[int, int]:
+    if point == PASS:
+        return (PASS, PASS)
+    else:
+        NS = boardsize + 1
+        return divmod(point, NS)
 
-    def format_point(move: Tuple[int, int]) -> str:
-        """
-        Return move coordinates as a string such as 'A1', or 'PASS'.
-        """
-        assert MAXSIZE <= 25
-        column_letters = "ABCDEFGHJKLMNOPQRSTUVWXYZ"
-        if move[0] == PASS:
-            return "PASS"
-        row, col = move
-        if not 0 <= row < MAXSIZE or not 0 <= col < MAXSIZE:
+def format_point(move: Tuple[int, int]) -> str:
+    """
+    Return move coordinates as a string such as 'A1', or 'PASS'.
+    """
+    assert MAXSIZE <= 25
+    column_letters = "ABCDEFGHJKLMNOPQRSTUVWXYZ"
+    if move[0] == PASS:
+        return "PASS"
+    row, col = move
+    if not 0 <= row < MAXSIZE or not 0 <= col < MAXSIZE:
+        raise ValueError
+    return column_letters[col - 1] + str(row)
+
+def move_to_coord(point_str: str, board_size: int) -> Tuple[int, int]:
+    """
+    Convert a string point_str representing a point, as specified by GTP,
+    to a pair of coordinates (row, col) in range 1 .. board_size.
+    Raises ValueError if point_str is invalid
+    """
+    if not 2 <= board_size <= MAXSIZE:
+        raise ValueError("board_size out of range")
+    s = point_str.lower()
+    if s == "pass":
+        return (PASS, PASS)
+    try:
+        col_c = s[0]
+        if (not "a" <= col_c <= "z") or col_c == "i":
             raise ValueError
-        return column_letters[col - 1] + str(row)
+        col = ord(col_c) - ord("a")
+        if col_c < "i":
+            col += 1
+        row = int(s[1:])
+        if row < 1:
+            raise ValueError
+    except (IndexError, ValueError):
+        raise ValueError("wrong coordinate")
+    if not (col <= board_size and row <= board_size):
+        raise ValueError("wrong coordinate")
+    return row, col
