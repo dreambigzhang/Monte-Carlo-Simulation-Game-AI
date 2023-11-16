@@ -21,13 +21,13 @@ class SimulationPlayer(object):
         self.numSimulations = 10
 
     def genmove(self, board: GoBoard, player, policy):
-        '''1. Generate a list of all legal moves
-           2. Simulate 10 games for each legal move
-           3. Pick highest winrate
-           4. Player resigns or passes when the game is over
-           5. Returns the best move, but maybe should play it?
         '''
-        # assert not state.endOfGame()
+            1. Generate a list of all legal moves
+            2. Simulate 10 games for each legal move
+            3. Pick highest winrate
+            4. Player resigns or passes when the game is over
+            5. Returns the best move
+        '''
         # Get all legal moves and put it into a list 
         if policy == 'random':
             legal_moves = board.get_empty_points()
@@ -37,6 +37,7 @@ class SimulationPlayer(object):
         if len(legal_moves) == 0:
             print('No legal moves left. Yield')
             return 'Yield'
+        
         # Simulate each legal move and assign a value
         score = [0] * len(legal_moves)
         for i in range(len(legal_moves)):
@@ -49,26 +50,39 @@ class SimulationPlayer(object):
         return best
 
     def simulate(self, board: GoBoard, move, player):
+        '''
+            Runs the number of simulations specified in numSimulations
+            Returns the evaluation of the results
+            Utilizes helper function simulate1 for each simulation
+        '''
         stats = [0] * 3
+
+        # Original copy of board
         board_copy = board.copy()
         
+        # Play first random move
         board.play_move(move, board.current_player)
-        for _ in range(self.numSimulations):
+        
+        # Complete 10 simulations
+        for _ in range(self.numSimulations):                               
             winner = self.simulate1(board)
             stats[winner] += 1
+        
+        # Restore Original board
         board = board_copy
         assert sum(stats) == self.numSimulations
 
+        # Evaluate the results 
         eval = (stats[player] + 0.5 * stats[EMPTY]) / self.numSimulations
         return eval
     
-    # simulate one game from the current state until the end
     def simulate1(self, board: GoBoard):
+        '''
+            Completes 1 simulation until end state using random rules
+        '''
         while not board.isGameOver():
             board.play_move(random.choice(board.get_empty_points()), board.current_player)
         return board.evalEndState()
-
-
     
 #==============================================================================================
 # Copied here for easy use
