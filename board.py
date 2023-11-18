@@ -415,11 +415,11 @@ class GoBoard(object):
         elif self.detect_five_in_a_row() == WHITE:
             return WHITE
         elif self.black_captures >=10:
-                return BLACK
+            return BLACK
         elif self.white_captures >=10:
-                return WHITE
+            return WHITE
         return EMPTY
     
 
     def boardIsFull(self):
-            return not EMPTY in self.board
+        return not EMPTY in self.board
