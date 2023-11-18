@@ -41,7 +41,9 @@ class SimulationPlayer(object):
         score = [0] * len(legal_moves)
         for i in range(len(legal_moves)):
             move = legal_moves[i]
+            #print(format_point(point_to_coord(move, board.size)))
             score[i] = self.simulate(board, move, player)
+            #print(score[i])
         
         # Get the best score
         bestIndex = score.index(max(score))
@@ -50,22 +52,29 @@ class SimulationPlayer(object):
 
     def simulate(self, board: GoBoard, move, player):
         stats = [0] * 3
-        board_copy = board.copy()
         
-        board.play_move(move, board.current_player)
+        board_copy1 = board.copy()
+        board_copy1.play_move(move, player)
         for _ in range(self.numSimulations):
-            winner = self.simulate1(board)
+            board_copy2 = board_copy1.copy()
+            winner = self.simulate1(board_copy2)
             stats[winner] += 1
-        board = board_copy
-        assert sum(stats) == self.numSimulations
+            #board = board_copy2
 
+        #board = board_copy1
+        assert sum(stats) == self.numSimulations
+        #print(stats)
         eval = (stats[player] + 0.5 * stats[EMPTY]) / self.numSimulations
+        #print(eval)
         return eval
     
     # simulate one game from the current state until the end
     def simulate1(self, board: GoBoard):
         while not board.isGameOver():
-            board.play_move(random.choice(board.get_empty_points()), board.current_player)
+            move = random.choice(board.get_empty_points())
+            #print(move)
+            board.play_move(move, board.current_player)
+        #print(GoBoardUtil.get_twoD_board(board))
         return board.evalEndState()
 
 
