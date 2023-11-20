@@ -153,7 +153,7 @@ def scanOpenFour(board: GoBoard, color, board_size):
             except:
                 pass
             try:
-                if pos_direction_count + neg_direction_count == 4 and (board.get_color(point+direction*(pos_direction_count)) == EMPTY or board.get_color(point-direction* (neg_direction_count)) == EMPTY):
+                if pos_direction_count + neg_direction_count == 4 and (board.get_color(point+direction*pos_direction_count) == EMPTY or board.get_color(point-direction*neg_direction_count) == EMPTY):
                     isOpenFourMove = True
                 else:
                     isOpenFourMove = False
