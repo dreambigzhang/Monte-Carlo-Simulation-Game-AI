@@ -107,6 +107,7 @@ def scanBlockWin(board: GoBoard, color, board_size):
                 blockWinMoves.add(format_point(point_to_coord(point,board_size)).lower())
     #print(blockWinMoves)
     # now scan open fours for the oppoenent and look for moves that capture them
+    # make sure the fours are open fours not just any fours
     opponentOpenFour = board.getConsecutiveFours(opponent(color))
     #print(opponentOpenFour)
     captureOpenFourMoves = set()
@@ -151,9 +152,12 @@ def scanOpenFour(board: GoBoard, color, board_size):
                         raise Exception
             except:
                 pass
-            if pos_direction_count + neg_direction_count == 4:
-                isOpenFourMove = True
-            else:
+            try:
+                if pos_direction_count + neg_direction_count == 4 and (board.get_color(point+direction*(pos_direction_count)) == EMPTY or board.get_color(point-direction* (neg_direction_count)) == EMPTY):
+                    isOpenFourMove = True
+                else:
+                    isOpenFourMove = False
+            except:
                 isOpenFourMove = False
 
             if isOpenFourMove:
