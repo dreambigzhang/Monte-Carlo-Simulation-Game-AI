@@ -394,6 +394,35 @@ class GoBoard(object):
                 return prev
         return EMPTY
     
+    def getConsecutiveFours(self, color):
+        consecutiveFours = set()
+        for r in self.rows:
+            #print([self.get_color(i) for i in r])
+            #print(self.find_consecutive_4_in_list(r, color))
+            consecutiveFours = consecutiveFours.union(self.find_consecutive_4_in_list(r, color))
+        for c in self.cols:
+            consecutiveFours = consecutiveFours.union(self.find_consecutive_4_in_list(c, color))
+        for d in self.diags:
+            consecutiveFours = consecutiveFours.union(self.find_consecutive_4_in_list(d, color))
+        #print(consecutiveFours)
+        return consecutiveFours
+    
+    def find_consecutive_4_in_list(self, lst, color):
+        consecutiveFour = set()
+        for i in range(len(lst)):
+            try:
+                if self.get_color(lst[i]) == color and self.get_color(lst[i+1]) == color and self.get_color(lst[i+2]) == color and self.get_color(lst[i+3]) == color:
+                    consecutiveFour.add(lst[i])
+                    consecutiveFour.add(lst[i+1])
+                    consecutiveFour.add(lst[i+2])
+                    consecutiveFour.add(lst[i+3])
+                    i+=4
+                    continue
+                else:
+                    pass
+            except:
+                pass
+        return consecutiveFour
 
     def neighbors_of_color(self, point: GO_POINT, color: GO_COLOR) -> List:
         """ List of neighbors of point of given color """

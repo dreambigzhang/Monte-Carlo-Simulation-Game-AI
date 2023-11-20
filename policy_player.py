@@ -104,8 +104,27 @@ def scanBlockWin(board: GoBoard, color, board_size):
                 isBlockWinMove = False
 
             if isBlockWinMove:
-                blockWinMoves.add(format_point(point_to_coord(point,board_size)).lower() )
-    return sorted(blockWinMoves)
+                blockWinMoves.add(format_point(point_to_coord(point,board_size)).lower())
+    #print(blockWinMoves)
+    # now scan open fours for the oppoenent and look for moves that capture them
+    opponentOpenFour = board.getConsecutiveFours(opponent(color))
+    #print(opponentOpenFour)
+    captureOpenFourMoves = set()
+    for point in board.get_empty_points():
+        for noc in board.neighbors_of_color(point, opponent(color)):
+            isCaptureOpenFourMove = True
+            direction = noc - point
+            try:
+                if not (board.get_color(point+direction*2) == opponent(color) and board.get_color(point+direction*3) == color):
+                    raise Exception
+                if not (noc in opponentOpenFour or noc + direction in opponentOpenFour):
+                    raise Exception
+            except:
+                isCaptureOpenFourMove = False
+
+            if isCaptureOpenFourMove:
+                captureOpenFourMoves.add(format_point(point_to_coord(point,board_size)).lower())
+    return sorted(blockWinMoves.union(captureOpenFourMoves))
 
 def scanOpenFour(board: GoBoard, color, board_size):
     # scan for open four moves
@@ -161,6 +180,9 @@ def scanRandom(board: GoBoard, color, board_size):
     return sorted(format_point(point_to_coord(point,board_size)).lower() for point in board.get_empty_points())
 
 
+
+
+
 def point_to_coord(point: GO_POINT, boardsize: int) -> Tuple[int, int]:
     """
     Transform point given as board array index 
@@ -186,3 +208,4 @@ def format_point(move: Tuple[int, int]) -> str:
     if not 0 <= row < MAXSIZE or not 0 <= col < MAXSIZE:
         raise ValueError
     return column_letters[col - 1] + str(row)
+
