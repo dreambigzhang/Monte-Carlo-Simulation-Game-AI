@@ -1,0 +1,32 @@
+Script started on 2023-11-20 10:21:36-07:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="80" LINES="24"]
+yushu5@ug01:~/cmput455>cp assignment3.tgz ./[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kmkdir te[K[K./testing
+yushu5@ug01:~/cmput455>cp assignment3.tgz ./testing/
+yushu5@ug01:~/cmput455>cd testging[K[K[K[King/
+yushu5@ug01:~/cmput455/testing>tar -xzf assignment3.tgz 
+yushu5@ug01:~/cmput455/testing>cd assignment3
+yushu5@ug01:~/cmput455/testing/assignment3>ls
+LICENSE			      board_util.py	   policy_player.py
+Ninuki.py		      engine.py		   readme.txt
+assignment3-public-tests.gtp  flat_monte_carlo.py  summary.dat
+board.py		      gtp_connection.py
+board_base.py		      index.html
+yushu5@ug01:~/cmput455/testing/assignment3>gogiu[K[Kui-regress Ninuki.py assignment3-public-tests.gtp [K -long
+10 passed
+20 passed
+30 passed
+40 passed
+50 passed
+60 passed
+70 passed
+80 passed
+90 passed
+100 passed
+110 passed
+120 passed
+130 passed
+140 passed
+Summary: 14/14 passes. 0 unexpected passes, 0 unexpected failures
+yushu5@ug01:~/cmput455/testing/assignment3>exit
+exit
+
+Script done on 2023-11-20 10:23:03-07:00 [COMMAND_EXIT_CODE="0"]
