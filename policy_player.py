@@ -72,6 +72,9 @@ def scanWin(board: GoBoard, color, board_size):
                 isWinMove = False
             if isWinMove:
                 winMoves.add(format_point(point_to_coord(point,board_size)).lower())
+    if board.get_captures(color)>=8:
+        captureMoves = scanCapture(board, color, board_size)
+        winMoves = winMoves.union(captureMoves)
     return sorted(winMoves)
 
 def scanBlockWin(board: GoBoard, color, board_size):
@@ -118,6 +121,9 @@ def scanBlockWin(board: GoBoard, color, board_size):
             try:
                 if not (board.get_color(point+direction*2) == opponent(color) and board.get_color(point+direction*3) == color):
                     raise Exception
+                #print("Black Capture Count", board.get_captures(color))
+                #print("White Capture Count", board.get_captures(WHITE))
+                #print("current player", color)
                 if not (noc in opponentOpenFour or noc + direction in opponentOpenFour):
                     raise Exception
             except:
@@ -125,6 +131,9 @@ def scanBlockWin(board: GoBoard, color, board_size):
 
             if isCaptureOpenFourMove:
                 captureOpenFourMoves.add(format_point(point_to_coord(point,board_size)).lower())
+    if board.get_captures(opponent(color))>=8:
+        captureMoves = scanCapture(board, opponent(color), board_size)
+        blockWinMoves = blockWinMoves.union(captureMoves)
     return sorted(blockWinMoves.union(captureOpenFourMoves))
 
 def scanOpenFour(board: GoBoard, color, board_size):
