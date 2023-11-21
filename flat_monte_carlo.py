@@ -43,7 +43,7 @@ class SimulationPlayer(object):
         for i in range(len(legal_moves)):
             move = legal_moves[i]
             #print(format_point(point_to_coord(move, board.size)))
-            score[i] = self.simulate(board, move, player)
+            score[i] = self.simulate(board, move, player, policy)
             #print(score[i])
         
         # Get the best score
@@ -51,7 +51,7 @@ class SimulationPlayer(object):
         best = legal_moves[bestIndex]
         return best
 
-    def simulate(self, board: GoBoard, move, player):
+    def simulate(self, board: GoBoard, move, player, policy):
         '''
             Runs the number of simulations specified in numSimulations
             Returns the evaluation of the results
@@ -63,7 +63,7 @@ class SimulationPlayer(object):
         board_copy1.play_move(move, player)
         for _ in range(self.numSimulations):
             board_copy2 = board_copy1.copy()
-            winner = self.simulate1(board_copy2)
+            winner = self.simulate1(board_copy2, policy)
             stats[winner] += 1
             #board = board_copy2
 
@@ -74,14 +74,25 @@ class SimulationPlayer(object):
         #print(eval)
         return eval
     
-    def simulate1(self, board: GoBoard):
+    def simulate1(self, board: GoBoard, policy):
         '''
             Completes 1 simulation until end state using random rules
         '''
-        while not board.isGameOver():
-            move = random.choice(board.get_empty_points())
-            #print(move)
-            board.play_move(move, board.current_player)
+        if policy == 'random':
+            while not board.isGameOver():
+                move = random.choice(board.get_empty_points())
+                #print(move)
+                board.play_move(move, board.current_player)
+        else:
+            
+            while not board.isGameOver():
+                _, policy_moves =  PolicyPlayer().get_policy_moves(board, board.current_player, policy)
+                #print(policy_moves)
+                moves = [coord_to_point(move_to_coord(move, board.size)[0], move_to_coord(move, board.size)[1], board.size) for move in policy_moves]
+                move = random.choice(moves)
+                #print(move)
+                board.play_move(move, board.current_player)
+        #print(board.current_player)
         #print(GoBoardUtil.get_twoD_board(board))
         return board.evalEndState()
     

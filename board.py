@@ -412,10 +412,11 @@ class GoBoard(object):
         for i in range(len(lst)):
             try:
                 if self.get_color(lst[i]) == color and self.get_color(lst[i+1]) == color and self.get_color(lst[i+2]) == color and self.get_color(lst[i+3]) == color:
-                    consecutiveFour.add(lst[i])
-                    consecutiveFour.add(lst[i+1])
-                    consecutiveFour.add(lst[i+2])
-                    consecutiveFour.add(lst[i+3])
+                    if self.get_color(lst[i-1]) == EMPTY or self.get_color(lst[i+4]) == EMPTY:
+                        consecutiveFour.add(lst[i])
+                        consecutiveFour.add(lst[i+1])
+                        consecutiveFour.add(lst[i+2])
+                        consecutiveFour.add(lst[i+3])
                     i+=4
                     continue
                 else:
